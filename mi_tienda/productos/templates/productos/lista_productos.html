@@ -1,85 +1,106 @@
 <!DOCTYPE html>
-<html> 
+<html>
 <head>
     <title>Lista de Productos</title>
-    <script> src="https://code.jquery.com/jquery-3.6.0.min.js"</script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style>
         #resultados-busqueda {
             list-style: none;
-            padding: 0;
+            padding-left: 0;
             margin-top: 5px;
-            border: 1px solid #ccc;
-            width: 300px;
+            border: 1px solid #444;
+            width: 100%;
             position: absolute;
-            background-color: white;
+            background-color: #212529;
             z-index: 1000;
         }
         #resultados-busqueda li {
-            padding: 5px 10px;
+            padding: 10px;
             cursor: pointer;
+            color: #f8f9fa;
         }
         #resultados-busqueda li:hover {
-            background-color: #f0f0f0;
+            background-color: #343a40;
         }
+        input::placeholder {
+        color: #ccc !important;
+        opacity: 1; /* Asegura que no esté semitransparente */
+        }
+
+
     </style>
 </head>
-<body>
-    <h1>Productos Disponibles</h1>
-    <input type="text" id="campo-busqueda" placeholder="Buscar productos...">
-    <ul id="resultados-busqueda"></ul>
+<body class="bg-dark text-light">
+    <div class="container py-5">
+        <h1 class="mb-4 text-center">Productos Disponibles</h1>
 
-    <ul>
-        {% for producto in productos %}
-        <li>
-            <a href="{% url 'detalle_producto' producto.id %}">
-                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" width:"300">
-                {{ producto.nombre }} - ${{ producto.precio }}
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
+        <div class="mb-3 position-relative">
+            <input type="text" id="campo-busqueda" class="form-control bg-dark text-light border-secondary" placeholder="Buscar productos...">
+            <ul id="resultados-busqueda" class="list-group"></ul>
+        </div>
+
+        <div class="row">
+            {% for producto in productos %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 bg-secondary text-light border-0">
+                    <a href="{% url 'detalle_producto' producto.id %}">
+                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="card-img-top img-fluid">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ producto.nombre }}</h5>
+                        <p class="card-text">$ {{ producto.precio }}</p>
+                        <a href="{% url 'detalle_producto' producto.id %}" class="btn btn-outline-light">Ver detalles</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
     <script>
-        $(document).ready(function() {
-            $('#campo-busqueda').on('input', function() {
-                let terminoBusqueda =$(this).val();
+        $(document).ready(function () {
+            $('#campo-busqueda').on('input', function () {
+                let terminoBusqueda = $(this).val();
 
                 if (terminoBusqueda.length >= 2) {
-                    $ajax({
+                    $.ajax({
                         url: "{% url 'buscar_productos' %}",
-
-                        data: { 'termino': terminoBusqueda},
+                        data: { 'termino': terminoBusqueda },
                         dataType: 'json',
-                        success: function(data) {
+                        success: function (data) {
                             let resultadosHtml = '';
                             if (data.productos.length > 0) {
-                                $.each(data.productos, function(index, producto) {
-                                    resultadosHtml += '<li data-id="'+ producto.nombre + ' - $' + producto.precio + '</li>';
+                                $.each(data.productos, function (index, producto) {
+                                    resultadosHtml += '<li class="list-group-item bg-dark text-light border-secondary" data-id="' + producto.id + '">' + producto.nombre + ' - $' + producto.precio + '</li>';
                                 });
                             } else {
-                                resultadosHtml += '<li>No se encontraron productos</li>';
+                                resultadosHtml += '<li class="list-group-item bg-dark text-light border-secondary">No se encontraron productos</li>';
                             }
-                            $('resultados-busqueda').html(resultadosHtml).show();
+                            $('#resultados-busqueda').html(resultadosHtml).show();
                         }
                     });
                 } else {
                     $('#resultados-busqueda').hide();
                 }
             });
-            $('#resultados-busqueda').on('click', 'li', function() {
+
+            $('#resultados-busqueda').on('click', 'li', function () {
                 let productoId = $(this).data('id');
                 if (productoId) {
                     window.location.href = "{% url 'detalle_producto' 0 %}".replace('0', productoId);
                 }
             });
 
-            $(document).on('click', function(event) {
-                if (!$(event.target).closest('#campo-busqueda, #resultdos-busqueda').length) {
+            $(document).on('click', function (event) {
+                if (!$(event.target).closest('#campo-busqueda, #resultados-busqueda').length) {
                     $('#resultados-busqueda').hide();
                 }
             });
-                        
-         });
-    
+        });
     </script>
-</body>   
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

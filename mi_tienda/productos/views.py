@@ -5,7 +5,7 @@ from .models import Producto
 def buscar_productos(request):
     termino_busqueda = request.GET.get('termino', '')
     
-    productos = Producto.objects.filter(nombre_icontains=termino_busqueda)
+    productos = Producto.objects.filter(nombre__icontains=termino_busqueda)
     
     resultados =[{'id': producto.id, 'nombre': producto.nombre, 'precio': str(producto.precio)} for producto in productos]
     
